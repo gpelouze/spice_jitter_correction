@@ -1,0 +1,15 @@
+.*.swp
+*~
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+build/
+dist/
+env/
+*.egg-info/
+.idea/
+
+tests/integration/data/L2r_generated
+example.pdf

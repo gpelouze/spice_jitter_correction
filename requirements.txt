@@ -1,0 +1,7 @@
+astropy>=4.3.1
+numpy>=1.21.4
+scipy>=1.1.0
+tqdm>=4.62.3
+matplotlib>=3.0.2
+
+setuptools==63.1.0
