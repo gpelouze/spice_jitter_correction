@@ -41,7 +41,7 @@ def get_coordinates(header):
     return np.array([Tx, Ty])
 
 
-def add_distortion_to_coordinates(coordinates, header, hdul):
+def add_distortion_to_coordinates(coordinates, hdul):
     """ Add distortion to coordinates
 
     Parameters
@@ -49,9 +49,6 @@ def add_distortion_to_coordinates(coordinates, header, hdul):
     coordinates : array_like
         Array of shape (2, ny, nx), containing the helioprojective coordinates
         `T_x` and `T_y` for each pixel of the field of view.
-    header : fits.Header
-        Header of the FITS extension for which to compute the
-        corrected coordinates.
     hdul : fits.HDUList
         HDU list with two extensions images ``WCSDVARR`` (1 and 2) containing
         the pointing distortion correction for `T_x` and `T_y`.
@@ -62,9 +59,9 @@ def add_distortion_to_coordinates(coordinates, header, hdul):
         Array of shape (2, ny, nx), containing the corrected coordinates.
     """
     Tx, Ty = coordinates
-    Tx_corr = hdul['WCSDVARR', 1].data * header['CDELT1']
-    Ty_corr = hdul['WCSDVARR', 2].data * header['CDELT2']
-    return np.array([Tx + Tx_corr, Ty + Ty_corr])
+    Tx_corr = hdul['WCSDVARR', 1].data
+    Ty_corr = hdul['WCSDVARR', 2].data
+    return np.array([Tx - Tx_corr, Ty - Ty_corr])
 
 
 def remap_spice_hdu(hdu, hdul, sum_wvl=False):
@@ -89,12 +86,12 @@ def remap_spice_hdu(hdu, hdul, sum_wvl=False):
     if not hdu.is_image or hdu.name == 'WCSDVARR':
         return hdu
     # Get wcs coordinates from fits
-    coord = get_coordinates(hdu.header)
-    new_coord = add_distortion_to_coordinates(coord, hdu.header, hdul)
+    coord_grid = get_coordinates(hdu.header)
+    coord_real = add_distortion_to_coordinates(coord_grid, hdul)
 
     # Interpolation initial and target points
-    points = coord.reshape(2, -1).T
-    new_points = np.moveaxis(new_coord, 0, -1)
+    points = coord_real.reshape(2, -1).T
+    new_points = np.moveaxis(coord_grid, 0, -1)
 
     new_hdu = hdu.copy()
     if sum_wvl:
