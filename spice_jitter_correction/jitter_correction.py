@@ -8,6 +8,7 @@ from tqdm import tqdm
 import astropy.units as u
 import numpy as np
 import scipy.interpolate as si
+import scipy.spatial as sspatial
 
 
 from .plot import PlotPointing
@@ -145,9 +146,9 @@ def remap_spice_hdu(hdu, points, new_points, sum_wvl=False):
     hdu : fits.PrimaryHDU, fits.ImageHDU, fits.BinTableHDU
         SPICE L2 FITS HDU to remap. (If the HDU is not of 'image' type, return
         it without modification.)
-    points : array_like
+    points : array_like or sspatial.Delaunay
         Array of shape (ny*nx, 2) containing the coordinates of the data
-        points.
+        points, or precomputed Delaunay triangulation.
     new_points : array_like
         Array of shape (ny*nx, 2) containing the points at which to interpolate
         the data.
@@ -234,11 +235,13 @@ def correct_jitter(
     # open FITS
     hdulist = fits.open(filename.to_str())
     points, new_points = get_interpolation_points(hdulist)
+    points_trig = sspatial.Delaunay(points)
 
     # interpolate data
     new_hdulist = fits.HDUList(hdus=[])
     for hdu in hdulist:
-        new_hdu = remap_spice_hdu(hdu, points, new_points, sum_wvl=sum_wvl)
+        new_hdu = remap_spice_hdu(
+            hdu, points_trig, new_points, sum_wvl=sum_wvl)
         new_hdulist.append(new_hdu)
 
     # save data
