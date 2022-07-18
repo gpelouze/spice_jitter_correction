@@ -16,13 +16,20 @@ class TestSpiceJitterCorrection(unittest.TestCase):
 
     def setup_filenames(self):
         self.filenames = [
-            SpiceFilename('solo_L2_spice-n-ras_20210914T025031_V88_67109159'
-                          '-000.fits'),
+            SpiceFilename('solo_L2_spice-n-ras_20210914T025031_V77_67109159'
+                          '-000.fits.gz'),
             ]
 
-    def assert_fits_identical(self, fn_generated, fn_reference):
+    @staticmethod
+    def _remove_data_from_fits(filename):
+        with fits.open(filename, mode='update') as hdul:
+            for hdu in hdul:
+                hdu.data = None
+        hdul.writeto(filename, overwrite=True)
+
+    def assert_fits_identical(self, fn_reference, fn_generated):
         diff = fits.FITSDiff(
-            fn_generated, fn_reference,
+            fn_reference, fn_generated,
             ignore_keywords=['CHECKSUM'],  # header checksum
             ignore_comments=['CHECKSUM', 'DATASUM'],  # checksums creation time
             )
@@ -45,6 +52,7 @@ class TestSpiceJitterCorrection(unittest.TestCase):
             )
 
         # Verification
+        self._remove_data_from_fits(filename_generated)
         self.assert_fits_identical(filename_reference, filename_generated)
 
         # Clear results

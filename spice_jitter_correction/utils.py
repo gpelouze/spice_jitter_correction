@@ -16,7 +16,7 @@ class SpiceFilename(dict):
         _(?P<time>\d{8}T\d{6})
         _(?P<version>V\d{2})
         _(?P<SPIOBSID>\d+)-(?P<RASTERNO>\d+)
-        (?P<ext>\.fits)
+        (?P<ext>\..*)
         ''',
         re.VERBOSE
         )
@@ -53,7 +53,7 @@ class SpiceFilename(dict):
             - version ('V03', ...)
             - SPIOBSID ('67109159', ...)
             - RASTERNO ('000', ...)
-            - ext ('.fits')
+            - ext ('.fits', '.fits.gz', ...)
 
         Returns
         -------
