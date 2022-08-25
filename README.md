@@ -17,6 +17,10 @@ time steps could be interpolated onto the same X-position.
 **Warning:** This tool requires that the L2 FITS contain the pointing at each
 slit position (in image extensions named `WCSDVARR`). These data are not yet
 present all FITS files, but will be added in a future release.
+For files without the `WCSDVARR` extension, the slit positions can be computed
+from the SPICE kernels using the [spice_stew] package.
+
+[spice_stew]: https://github.com/gpelouze/spice_stew
 
 
 ## Installation
