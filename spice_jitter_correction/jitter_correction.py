@@ -191,7 +191,7 @@ def remap_spice_hdu(hdu, points, new_points, sum_wvl=False):
 
 def correct_jitter(
         filename, output_dir, overwrite=False,
-        plot_results=False, sum_wvl=False
+        plot_results=False, sum_wvl=False, windows=None,
         ):
     """ Correct the pointing in a SPICE level 2 FITS
 
@@ -207,6 +207,8 @@ def correct_jitter(
         Generate plots to visualize the results.
     sum_wvl : bool
         If True, sum along wavelength axis to generate a quicklook image.
+    windows : list of str or None (default: None)
+        Windows to keep. If None, keep all windows.
 
     The aligned fits are saved in <output_dir> under the name
     <solo_L2r_spice-....fits> when sum_wvl is False, or
@@ -239,7 +241,13 @@ def correct_jitter(
 
     # interpolate data
     new_hdulist = fits.HDUList(hdus=[])
-    for hdu in hdulist:
+    if windows is None:
+        windows = [hdu.name for hdu in hdulist
+                   if hdu.is_image and (hdu.name != 'WCSDVARR')]
+    windows = windows + [hdu.name for hdu in hdulist
+                         if not hdu.is_image or (hdu.name == 'WCSDVARR')]
+    for win in windows:
+        hdu = hdulist[win]
         new_hdu = remap_spice_hdu(
             hdu, points_trig, new_points, sum_wvl=sum_wvl)
         new_hdulist.append(new_hdu)
