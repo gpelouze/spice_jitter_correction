@@ -13,7 +13,7 @@ entry_points = {
 
 setuptools.setup(
     name='spice_jitter_correction',
-    version='2022.07.12',
+    version='2022.02.01',
     author='Gabriel Pelouze',
     author_email='gabriel.pelouze@universite-paris-saclay.fr',
     description='Correct the pointing of SOLO/SPICE for each slit position',
